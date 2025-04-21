@@ -1,4 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-... (truncated for brevity in this step — we will use canvas content) ...
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T-Shirt Price Estimator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-width: 100%;
+      max-height: 200px;
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      margin-top: 10px;
+      display: block;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="logo.png" alt="Rimmer Designs Logo">
+    </div>
+
+    <h2>T-Shirt Price Estimator</h2>
+
+    <label for="cost">Your Cost Per Garment ($):</label>
+    <input type="number" id="cost" placeholder="Enter your cost" step="0.01">
+
+    <label for="markup">Select Markup:</label>
+    <select id="markup">
+      <option value="2">2x (Double)</option>
+      <option value="1">1x (Same Price)</option>
+      <option value="0.5">0.5x (Sell at Half)</option>
+    </select>
+
+    <label for="placementFront">Print Placement - Front:</label>
+    <select id="placementFront">
+      <option value="0">None</option>
+      <option value="3">Left Chest (+$3.00)</option>
+      <option value="4">Full Front (+$4.00)</option>
+    </select>
+
+    <label for="placementBack">Print Placement - Back:</label>
+    <select id="placementBack">
+      <option value="0">None</option>
+      <option value="4">Full Back (+$4.00)</option>
+    </select>
+
+    <label for="sleeve">Sleeve Print:</label>
+    <select id="sleeve">
+      <option value="0">None</option>
+      <option value="2">Add Sleeve Print (+$2.00)</option>
+    </select>
+
+    <label for="print">Printing Method:</label>
+    <select id="print">
+      <option value="0">None</option>
+      <option value="2">Screen Print (+$2.00)</option>
+    </select>
+
+    <label for="size">Garment Size:</label>
+    <select id="size">
+      <option value="0">S-XL (No extra charge)</option>
+      <option value="2">2XL (+$2.00)</option>
+      <option value="3">3XL (+$3.00)</option>
+    </select>
+
+    <label for="pickup">Pickup & Drop-Off Option:</label>
+    <select id="pickup">
+      <option value="0">None</option>
+      <option value="20">Add Pickup & Drop-Off (+$20.00)</option>
+    </select>
+
+    <label for="tax">Apply Tax?</label>
+    <select id="tax">
+      <option value="0">No Tax</option>
+      <option value="0.08">Add 8% Tax</option>
+    </select>
+
+    <label for="dtf">DTF Customer Supplied Shirt?</label>
+    <select id="dtf">
+      <option value="0">No</option>
+      <option value="6">Yes ($6.00 base)</option>
+    </select>
+
+    <label for="dtfsale">Selling DTF Transfers?</label>
+    <select id="dtfsale">
+      <option value="0">No</option>
+      <option value="6">Yes ($6.00 per 12x12)</option>
+    </select>
+
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" placeholder="Enter quantity" min="1" value="1">
+
+    <label for="notes">Additional Notes / Comments:</label>
+    <textarea id="notes" rows="3" placeholder="Enter any special instructions or notes here..."></textarea>
+
+    <button onclick="calculateFinalPrice()">Calculate Final Price</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function calculateFinalPrice() {
+      let cost = parseFloat(document.getElementById('cost').value);
+      const markup = parseFloat(document.getElementById('markup').value);
+      const placementFront = parseFloat(document.getElementById('placementFront').value);
+      const placementBack = parseFloat(document.getElementById('placementBack').value);
+      const sleeve = parseFloat(document.getElementById('sleeve').value);
+      const print = parseFloat(document.getElementById('print').value);
+      const sizeUpcharge = parseFloat(document.getElementById('size').value);
+      const pickup = parseFloat(document.getElementById('pickup').value);
+      const taxRate = parseFloat(document.getElementById('tax').value);
+      const dtf = parseFloat(document.getElementById('dtf').value);
+      const dtfsale = parseFloat(document.getElementById('dtfsale').value);
+      const quantity = parseInt(document.getElementById('quantity').value);
+
+      if (dtf > 0) {
+        cost = dtf;
+      } else if (dtfsale > 0) {
+        cost = dtfsale;
+      }
+
+      if (isNaN(cost) || isNaN(quantity) || quantity < 1) {
+        document.getElementById('result').innerText = "Please enter valid cost and quantity.";
+        return;
+      }
+
+      let basePrice = cost * markup;
+      let subtotal = (basePrice + placementFront + placementBack + sleeve + print + sizeUpcharge + pickup) * quantity;
+
+      if (quantity >= 100) subtotal *= 0.85;
+      else if (quantity >= 50) subtotal *= 0.90;
+      else if (quantity >= 10) subtotal *= 0.95;
+
+      const taxAmount = subtotal * taxRate;
+      const finalPrice = subtotal + taxAmount;
+
+      document.getElementById('result').innerText = `Total Price: $${finalPrice.toFixed(2)} (Tax: $${taxAmount.toFixed(2)}, Quantity: ${quantity})`;
+    }
+  </script>
+</body>
 </html>
